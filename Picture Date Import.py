@@ -5,8 +5,8 @@ import mysql.connector
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'KpakpoParker700!',
-    'database': 'chaku_foods'
+    'password': '*****',
+    'database': '*****'
 }
 
 # Load the Excel file
