@@ -3,7 +3,7 @@ from shapely.wkt import loads
 import geojson
 
 # Load the CSV file
-csv_file_path = r"C:\Users\CHAKU FOODS\Documents\MySQL Chaku Database Creation\Farm and Farmer Table Join_CSV.csv"  # Update with your CSV file path
+csv_file_path = r"file_path"  # Update with your CSV file path
 df = pd.read_csv(csv_file_path)
 
 # Assuming the CSV has columns 'geoboundary' and 'geopoint' in WKT format
