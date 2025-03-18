@@ -4,8 +4,8 @@ SELECT
     fa.first_name, 
     f.farm_number,
     f.farm_id,
-    f.geo_coordinates,
-    f.geo_boundaries,
+    ST_AsText(f.geo_coordinates) AS geo_coordinates,
+    ST_AsText(f.geo_boundaries) AS geo_boundaries,
     f.farm_location
 FROM farmer fa
 JOIN farm f
