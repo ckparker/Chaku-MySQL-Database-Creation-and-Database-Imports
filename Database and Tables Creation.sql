@@ -62,6 +62,7 @@ CREATE TABLE farm (
     farmer_id INT,
     farm_number VARCHAR(10),
     farm_location VARCHAR(100),
+    acreage DECIMAL(10,2),
     geo_coordinates POINT,
     geo_boundaries POLYGON,
     road_accessibility ENUM('accessible', 'difficult', 'not accessible'),
@@ -73,6 +74,7 @@ ADD COLUMN geo_coordinates POINT;
 
 ALTER TABLE farm
 ADD COLUMN geo_boundaries POLYGON; **/
+
 
 -- Create the intercropping data Table
 CREATE TABLE intercropping_data (
@@ -231,7 +233,6 @@ MODIFY COLUMN harvest_responsibility VARCHAR(100) AFTER harvesting_process; **/
 CREATE TABLE tree_data (
 tree_id INT AUTO_INCREMENT PRIMARY KEY,
 farm_id INT,
-farmer_id INT,
 picture_date DATE,
 tree_number INT, 
 tree_geopoint POINT, 
@@ -244,8 +245,7 @@ picture_6_url VARCHAR(255),
 picture_7_url VARCHAR(255),
 picture_8_url VARCHAR(255),
 fruit_set_percentage DECIMAL(5,2), 
-FOREIGN KEY (farm_id) REFERENCES farm(farm_id), 
-FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
+FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE 
 ); 
 
 /** ALTER TABLE tree_data
@@ -294,9 +294,9 @@ SELECT TABLE_NAME, CONSTRAINT_NAME, DELETE_RULE
 FROM information_schema.REFERENTIAL_CONSTRAINTS
 WHERE CONSTRAINT_SCHEMA = 'chaku_foods';
 
+/**
 SELECT * 
 FROM farmer 
 WHERE farmer_id NOT IN (SELECT farmer_id FROM main_crop_data);
-
-
+**/
 
