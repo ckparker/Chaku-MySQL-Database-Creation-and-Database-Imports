@@ -231,21 +231,21 @@ MODIFY COLUMN harvest_responsibility VARCHAR(100) AFTER harvesting_process; **/
 
 -- Create the Tree Table
 CREATE TABLE tree_data (
-tree_id INT AUTO_INCREMENT PRIMARY KEY,
-farm_id INT,
-picture_date DATE,
-tree_number INT, 
-tree_geopoint POINT, 
-picture_1_url VARCHAR(255),
-picture_2_url VARCHAR(255), 
-picture_3_url VARCHAR(255),
-picture_4_url VARCHAR(255),
-picture_5_url VARCHAR(255), 
-picture_6_url VARCHAR(255),
-picture_7_url VARCHAR(255),
-picture_8_url VARCHAR(255),
-fruit_set_percentage DECIMAL(5,2), 
-FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE 
+	tree_id INT AUTO_INCREMENT PRIMARY KEY,
+	farm_id INT,
+	picture_date DATE,
+	tree_number INT, 
+	tree_geopoint POINT, 
+	picture_1_url VARCHAR(255),
+	picture_2_url VARCHAR(255), 
+	picture_3_url VARCHAR(255),
+	picture_4_url VARCHAR(255),
+	picture_5_url VARCHAR(255), 
+	picture_6_url VARCHAR(255),
+	picture_7_url VARCHAR(255),
+	picture_8_url VARCHAR(255),
+	fruit_set_percentage DECIMAL(5,2), 
+	FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE 
 ); 
 
 /** ALTER TABLE tree_data
@@ -299,4 +299,66 @@ SELECT *
 FROM farmer 
 WHERE farmer_id NOT IN (SELECT farmer_id FROM main_crop_data);
 **/
+
+CREATE TABLE yield_and_revenue (
+	yield_id INT AUTO_INCREMENT PRIMARY KEY,
+	farm_id INT,
+	yield_date DATE,
+	season ENUM ("Major","Minor"),
+	total_yield_mt DECIMAL(10,2),
+	loss_percentage DECIMAL(10,2),
+	tonnage_sold DECIMAL(10,2),
+	percentage_sold DECIMAL(10,2),
+	total_production_cost_ghs DECIMAL(10,2),
+    price_per_kilo_ghs INT,
+	revenue_from_sales_ghs DECIMAL(10,2),
+	income_lost_ghs DECIMAL(10,2),
+    FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE
+);
+
+# Creating trigger for total production cost (ghs) calculation
+DELIMITER $$
+
+CREATE TRIGGER production_cost 
+BEFORE INSERT ON yield_and_revenue
+FOR EACH ROW
+BEGIN
+    DECLARE farm_acreage INT;
+    
+    -- Fetch the acreage value from the farm table
+    SELECT acreage INTO farm_acreage FROM farm WHERE farm_id = NEW.farm_id;
+
+    -- Calculate total production cost using the fetched acreage value
+    SET NEW.total_production_cost_ghs = farm_acreage * 16000;
+END $$
+
+DELIMITER ;
+
+# Creating trigger for revenue from tonnage sold (ghs) calculation
+DELIMITER $$
+
+CREATE TRIGGER sales_revenue 
+BEFORE INSERT ON yield_and_revenue
+FOR EACH ROW
+BEGIN
+	SET NEW.revenue_from_sales_ghs = (NEW.tonnage_sold*1000)*5;
+END $$
+
+DELIMITER ;
+
+# Creating trigger for income lost (ghs) calculation
+DELIMITER $$
+
+CREATE TRIGGER income_lost 
+BEFORE INSERT ON yield_and_revenue
+FOR EACH ROW
+BEGIN
+	SET NEW.income_lost_ghs = ((NEW.loss_percentage/100 * NEW.total_yield_mt)*1000)*5;
+END $$
+
+DELIMITER ;
+
+
+
+
 
