@@ -305,8 +305,9 @@ CREATE TABLE yield_and_revenue (
 	farm_id INT,
 	yield_date DATE,
 	season ENUM ("Major","Minor"),
+    initial_yield_mt DECIMAL(10,2),
+    loss_percentage DECIMAL(10,2),
 	total_yield_mt DECIMAL(10,2),
-	loss_percentage DECIMAL(10,2),
 	tonnage_sold DECIMAL(10,2),
 	percentage_sold DECIMAL(10,2),
 	total_production_cost_ghs DECIMAL(10,2),
@@ -315,7 +316,6 @@ CREATE TABLE yield_and_revenue (
 	income_lost_ghs DECIMAL(10,2),
     FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE
 );
-
 
 # Creating a before insert trigger for total production cost (ghs) calculation
 DELIMITER $$
@@ -394,6 +394,30 @@ BEFORE UPDATE ON yield_and_revenue
 FOR EACH ROW
 BEGIN
     SET NEW.income_lost_ghs = (((NEW.loss_percentage / 100) * NEW.total_yield_mt) + ((NEW.total_yield_mt - NEW.tonnage_sold))) * 1000 * NEW.price_per_kilo_ghs;
+END $$
+
+DELIMITER ;
+
+# Creating a before insert trigger for total yield (MT) calculation
+DELIMITER $$
+
+CREATE TRIGGER final_yield
+BEFORE INSERT ON yield_and_revenue
+FOR EACH ROW
+BEGIN
+	SET NEW.total_yield_mt = NEW.total_yield_mt/((100 - NEW.loss_percentage)/100);
+END $$
+
+DELIMITER ;
+
+# Creating a before update trigger for total yield (MT) calculation
+DELIMITER $$
+
+CREATE TRIGGER before_update_final_yield
+BEFORE UPDATE ON yield_and_revenue
+FOR EACH ROW
+BEGIN
+	SET NEW.total_yield_mt = NEW.total_yield_mt/((100 - NEW.loss_percentage)/100);
 END $$
 
 DELIMITER ;
