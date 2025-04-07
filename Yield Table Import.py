@@ -6,8 +6,8 @@ from datetime import datetime
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'KpakpoParker700!',
-    'database': 'chaku_foods_db'
+    'password': '*****',
+    'database': '*****'
 }
 
 try:
