@@ -316,7 +316,8 @@ CREATE TABLE yield_and_revenue (
     FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE
 );
 
-# Creating trigger for total production cost (ghs) calculation
+
+# Creating a before insert trigger for total production cost (ghs) calculation
 DELIMITER $$
 
 CREATE TRIGGER production_cost 
@@ -334,31 +335,68 @@ END $$
 
 DELIMITER ;
 
-# Creating trigger for revenue from tonnage sold (ghs) calculation
+# This trigger works when acreage is updated
+DELIMITER $$
+
+CREATE TRIGGER after_update_farm_acreage
+AFTER UPDATE ON farm
+FOR EACH ROW
+BEGIN
+    -- Update total production cost in yield_and_revenue when acreage changes in farm
+    UPDATE yield_and_revenue 
+    SET total_production_cost_ghs = NEW.acreage * 16000
+    WHERE farm_id = NEW.farm_id;
+END $$
+
+DELIMITER ;
+
+# Creating a before insert trigger for revenue from tonnage sold (ghs) calculation
 DELIMITER $$
 
 CREATE TRIGGER sales_revenue 
 BEFORE INSERT ON yield_and_revenue
 FOR EACH ROW
 BEGIN
-	SET NEW.revenue_from_sales_ghs = (NEW.tonnage_sold*1000)*5;
+	SET NEW.revenue_from_sales_ghs = (NEW.tonnage_sold*1000)*NEW.price_per_kilo_ghs;
 END $$
 
 DELIMITER ;
 
-# Creating trigger for income lost (ghs) calculation
+# Creating a before update trigger for for revenue from tonnage sold (ghs) calculation
+DELIMITER $$
+
+CREATE TRIGGER before_update_sales_revenue 
+BEFORE UPDATE ON yield_and_revenue
+FOR EACH ROW
+BEGIN
+	SET NEW.revenue_from_sales_ghs = (NEW.tonnage_sold*1000)*NEW.price_per_kilo_ghs;
+END $$
+
+DELIMITER ;
+
+# Creating a before insert trigger for income lost (ghs) calculation
 DELIMITER $$
 
 CREATE TRIGGER income_lost 
 BEFORE INSERT ON yield_and_revenue
 FOR EACH ROW
 BEGIN
-	SET NEW.income_lost_ghs = ((NEW.loss_percentage/100 * NEW.total_yield_mt)*1000)*5;
+    SET NEW.income_lost_ghs = (((NEW.loss_percentage / 100) * NEW.total_yield_mt) + ((NEW.total_yield_mt - NEW.tonnage_sold))) * 1000 * NEW.price_per_kilo_ghs;
 END $$
 
 DELIMITER ;
 
+# Creating a before update trigger for income lost (ghs) calculation
+DELIMITER $$
 
+CREATE TRIGGER before_update_income_lost 
+BEFORE UPDATE ON yield_and_revenue
+FOR EACH ROW
+BEGIN
+    SET NEW.income_lost_ghs = (((NEW.loss_percentage / 100) * NEW.total_yield_mt) + ((NEW.total_yield_mt - NEW.tonnage_sold))) * 1000 * NEW.price_per_kilo_ghs;
+END $$
 
+DELIMITER ;
 
+DROP TRIGGER IF EXISTS production_cost;
 
