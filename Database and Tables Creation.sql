@@ -65,6 +65,8 @@ CREATE TABLE farm (
     acreage DECIMAL(10,2),
     geo_coordinates POINT,
     geo_boundaries POLYGON,
+    latitude DECIMAL(10,7),
+    longitude DECIMAL(10,7),
     road_accessibility ENUM('accessible', 'difficult', 'not accessible'),
     FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
 );
