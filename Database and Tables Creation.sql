@@ -246,7 +246,7 @@ CREATE TABLE tree_data (
 	picture_6_url VARCHAR(255),
 	picture_7_url VARCHAR(255),
 	picture_8_url VARCHAR(255),
-	fruit_set_percentage DECIMAL(5,2), 
+	fruit_count INT, 
 	FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE 
 ); 
 
