@@ -45,6 +45,10 @@ def update_tree_pictures(excel_file_path):
         print("Reading Excel file...")
         df = pd.read_excel(excel_file_path)
         
+        # Debug: Print unique values in picture_1_url column
+        print("\nUnique values in picture_1_url column:")
+        print(df['picture_1_url'].unique())
+        
         # Replace empty strings and NaN with None
         for col in df.columns:
             if col.startswith('picture_'):
@@ -62,6 +66,10 @@ def update_tree_pictures(excel_file_path):
         print("Processing Excel data...")
         for index, row in df.iterrows():
             try:
+                # Debug: Print current row's picture URLs
+                print(f"\nProcessing row {index}:")
+                print(f"picture_1_url: {row.get('picture_1_url')}")
+                
                 # Get farmer_id based on first_name and last_name
                 cursor.execute("""
                     SELECT farmer_id 
@@ -102,7 +110,7 @@ def update_tree_pictures(excel_file_path):
                         picture_6_url = %s,
                         picture_7_url = %s,
                         picture_8_url = %s
-                    WHERE farm_id = %s
+                    WHERE farm_id = %s AND tree_number = %s
                 """
                 
                 update_values = (
@@ -114,11 +122,17 @@ def update_tree_pictures(excel_file_path):
                     clean_value(row.get('picture_6_url')),
                     clean_value(row.get('picture_7_url')),
                     clean_value(row.get('picture_8_url')),
-                    farm_id
+                    farm_id,
+                    row['tree_number']  # Add tree_number to the WHERE clause
                 )
                 
+                # Debug: Print update values
+                print(f"Update values for farm_id {farm_id}, tree_number {row['tree_number']}:")
+                for i, val in enumerate(update_values[:-2], 1):  # Changed to -2 since we added tree_number
+                    print(f"picture_{i}_url: {val}")
+                
                 cursor.execute(update_query, update_values)
-                print(f"Updated pictures for {row['first_name']} {row['last_name']}, farm number {row['farm_number']}")
+                print(f"Updated pictures for {row['first_name']} {row['last_name']}, farm number {row['farm_number']}, tree number {row['tree_number']}")
                 
             except Error as e:
                 print(f"Error processing row {index}: {e}")
