@@ -161,8 +161,6 @@ CREATE TABLE main_crop_data (
     tree_spacing VARCHAR(50),
     tree_flower_percentage INT,
     flowering_image_url VARCHAR(255),
-    avg_fruit_set_percentage DECIMAL(5,2),
-    avg_fruit_count INT,
     predicted_harvest_time VARCHAR(255),
     FOREIGN KEY (farm_id) REFERENCES farm(farm_id),
     FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
