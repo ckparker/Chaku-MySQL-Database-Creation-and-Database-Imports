@@ -71,13 +71,6 @@ CREATE TABLE farm (
     FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
 );
 
-/** ALTER TABLE farm
-ADD COLUMN geo_coordinates POINT;
-
-ALTER TABLE farm
-ADD COLUMN geo_boundaries POLYGON; **/
-
-
 -- Create the intercropping data Table
 CREATE TABLE intercropping_data (
     crop_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -86,19 +79,6 @@ CREATE TABLE intercropping_data (
     FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
 );
 
-/**
-ALTER TABLE farm_crops
-DROP COLUMN crop_name;
-
-ALTER TABLE farm_crops
-DROP COLUMN variety;
-
-ALTER TABLE farm_crops
-DROP COLUMN initial_planting_year;
-
-ALTER TABLE farm_crops
-DROP COLUMN tree_spacing;
-**/
 
 -- Create the Dependents Table
 CREATE TABLE dependents (
@@ -126,6 +106,8 @@ CREATE TABLE impact_assessment (
     farming_income_type ENUM('Primary', 'Secondary'), -- Primary or Secondary
     primary_income_source VARCHAR(255), -- Shows primary income source if farming is secondary
     post_harvest_loss_percent INT, -- Percentage of post-harvest losses incurred
+    relies_on_rainfall ENUM("Yes","No"),
+    other_irrigation_methods TEXT,
     FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
 ); 
 
@@ -149,6 +131,7 @@ MODIFY COLUMN crops_cultivated TEXT AFTER primary_income_source;
 
 ALTER TABLE impact_assessment
 MODIFY COLUMN uneaten_scale INT AFTER crops_cultivated; **/
+
 
 -- Create the Main Crop Data Table
 CREATE TABLE main_crop_data (
@@ -195,14 +178,6 @@ ALTER TABLE main_crop_data
 MODIFY COLUMN variety VARCHAR(100) AFTER crop_name;
 **/
 
--- Create the Irrigation Table
-CREATE TABLE irrigation (
-    irrigation_id INT AUTO_INCREMENT PRIMARY KEY,
-    farmer_id INT,
-    relies_on_rainfall ENUM("Yes","No"),
-    other_irrigation_methods TEXT,
-    FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
-);
 
 -- Create the Harvesting Table
 CREATE TABLE harvesting (
