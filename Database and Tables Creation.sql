@@ -476,3 +476,11 @@ CREATE TABLE project_tracking (
     FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE
 );
 
+
+-- Check Spatial Reference System (SRID) of geoboundaries
+SELECT ST_SRID(geo_boundaries) 
+FROM farm;
+
+-- This changes SRID of the geoboundaries from 0 to 4326 (WGS84) for global geographic data
+UPDATE farm 
+SET geo_boundaries = ST_GeomFromText(ST_AsText(geo_boundaries), 4326);
