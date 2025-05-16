@@ -430,3 +430,49 @@ CREATE TABLE users (
     INDEX idx_username_active (username, is_active),
     INDEX idx_email_active (email, is_active)
 );
+
+-- New table for projects
+CREATE TABLE project (
+    project_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_name VARCHAR(255),
+    crop_name VARCHAR(100),
+    product_type VARCHAR(50),  -- (Fresh, Flour, Dried, Chips)
+    quantity_required DECIMAL(10,2),  -- in metric tons
+    quantity_unit VARCHAR(20),  -- (Metric Tons, Kilogrammes, Litres, Pounds)
+    harvest_time_start DATE,
+    harvest_time_end DATE,
+    created_by INT NOT NULL,  -- User who created the project
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'active',  -- (active, completed, cancelled)
+    FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- New table for project-farm assignments
+CREATE TABLE project_farm_assignment (
+    assignment_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT,
+    farm_id INT,
+    farmer_id INT,
+    contribution_amount DECIMAL(10,2),  -- in metric tons
+    contribution_percentage DECIMAL(5,2),
+    estimated_revenue DECIMAL(12,2),
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'assigned',  -- (assigned, fulfilled, cancelled)
+    FOREIGN KEY (project_id) REFERENCES project(project_id) ON DELETE CASCADE,
+    FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE,
+    FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
+);
+
+-- Project tracking table
+CREATE TABLE project_tracking (
+    tracking_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT,
+    farm_id INT,
+    actual_contribution DECIMAL(10,2),
+    delivery_date DATE,
+    quality_grade VARCHAR(20),
+    notes TEXT,
+    FOREIGN KEY (project_id) REFERENCES project(project_id) ON DELETE CASCADE,
+    FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE
+);
+
