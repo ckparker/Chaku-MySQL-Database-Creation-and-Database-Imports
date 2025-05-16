@@ -145,7 +145,7 @@ CREATE TABLE main_crop_data (
     tree_flower_percentage INT,
     flowering_image_url VARCHAR(255),
     predicted_harvest_time VARCHAR(255),
-    FOREIGN KEY (farm_id) REFERENCES farm(farm_id),
+    FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE,
     FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
 );
 
@@ -190,8 +190,6 @@ CREATE TABLE harvesting (
     FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id) ON DELETE CASCADE
 );
 
-
-
 /** ALTER TABLE harvesting
 ADD COLUMN collected_or_harvested BOOLEAN;
 
@@ -223,24 +221,11 @@ CREATE TABLE tree_data (
 	FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE 
 ); 
 
-/** ALTER TABLE tree_data
-ADD COLUMN fruit_set_percentage DECIMAL(5,2);
-
-ALTER TABLE tree_data
-ADD COLUMN farmer_id INT;
-
-/** ALTER TABLE tree_data
-ADD COLUMN picture_date DATE;
-
+/**
 ALTER TABLE tree_data
 ADD CONSTRAINT fk_farmer_in_tree_data
 FOREIGN KEY (farmer_id) REFERENCES farmer(farmer_id);
-
-ALTER TABLE tree_data
-MODIFY COLUMN farmer_id INT AFTER farm_id;
-
-ALTER TABLE tree_data
-MODIFY COLUMN picture_date DATE AFTER farmer_id; **/
+**/
 
 /**
 SET SQL_SAFE_UPDATES = 0;
@@ -264,10 +249,12 @@ ADD CONSTRAINT td_farmer_id FOREIGN KEY (farmer_id)
 REFERENCES farmer(farmer_id) ON DELETE CASCADE;
 **/
 
+
 # This code helps you find delete rules for each of your tables based on their constraints
 SELECT TABLE_NAME, CONSTRAINT_NAME, DELETE_RULE
 FROM information_schema.REFERENTIAL_CONSTRAINTS
 WHERE CONSTRAINT_SCHEMA = 'chaku_foods';
+
 
 /**
 SELECT * 
@@ -399,3 +386,47 @@ DELIMITER ;
 
 DROP TRIGGER IF EXISTS production_cost;
 
+-- Create yield predictions table
+CREATE TABLE yield_predictions (
+    prediction_id INT AUTO_INCREMENT PRIMARY KEY,
+    farm_id INT NOT NULL,
+    harvest_date DATE,
+    predicted_yield_mt DECIMAL(10,2),
+    actual_yield_mt DECIMAL(10,2),
+    season ENUM('Major','Minor'),
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    -- Foreign keys
+    FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE,
+    -- Index
+    INDEX idx_harvest_date (farm_id, harvest_date)
+);
+
+/** add confidence level for user-friendly interpretation of results
+ALTER TABLE yield_predictions
+ADD COLUMN confidence_level VARCHAR(20) 
+GENERATED ALWAYS AS (
+    CASE 
+        WHEN prediction_confidence >= 80 THEN 'High'
+        WHEN prediction_confidence >= 65 THEN 'Medium'
+        ELSE 'Low'
+    END
+) STORED;
+**/
+
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    role ENUM('admin', 'partner', 'user') NOT NULL,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
+    INDEX idx_last_login (last_login),
+    INDEX idx_username_active (username, is_active),
+    INDEX idx_email_active (email, is_active)
+);
