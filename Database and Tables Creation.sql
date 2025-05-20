@@ -319,7 +319,7 @@ CREATE TRIGGER sales_revenue
 BEFORE INSERT ON yield_and_revenue
 FOR EACH ROW
 BEGIN
-	SET NEW.revenue_from_sales_ghs = (NEW.tonnage_sold*1000)*NEW.price_per_kilo_ghs;
+	SET NEW.revenue_from_sales_ghs = (NEW.tonnage_sold * 1000) * NEW.price_per_kilo_ghs;
 END $$
 
 DELIMITER ;
@@ -331,7 +331,7 @@ CREATE TRIGGER before_update_sales_revenue
 BEFORE UPDATE ON yield_and_revenue
 FOR EACH ROW
 BEGIN
-	SET NEW.revenue_from_sales_ghs = (NEW.tonnage_sold*1000)*NEW.price_per_kilo_ghs;
+	SET NEW.revenue_from_sales_ghs = (NEW.tonnage_sold * 1000) * NEW.price_per_kilo_ghs;
 END $$
 
 DELIMITER ;
@@ -367,7 +367,7 @@ CREATE TRIGGER final_yield
 BEFORE INSERT ON yield_and_revenue
 FOR EACH ROW
 BEGIN
-	SET NEW.total_yield_mt = NEW.total_yield_mt/((100 - NEW.loss_percentage)/100);
+	SET NEW.total_yield_mt = ROUND(NEW.initial_yield_mt * ((100 - NEW.loss_percentage) / 100), 2);
 END $$
 
 DELIMITER ;
@@ -379,7 +379,7 @@ CREATE TRIGGER before_update_final_yield
 BEFORE UPDATE ON yield_and_revenue
 FOR EACH ROW
 BEGIN
-	SET NEW.total_yield_mt = NEW.total_yield_mt/((100 - NEW.loss_percentage)/100);
+	SET NEW.total_yield_mt = ROUND(NEW.initial_yield_mt * ((100 - NEW.loss_percentage) / 100), 2);
 END $$
 
 DELIMITER ;
