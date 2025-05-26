@@ -442,6 +442,8 @@ CREATE TABLE project (
     created_by INT NOT NULL,  -- User who created the project
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20) DEFAULT 'active',  -- (active, completed, cancelled)
+    quality_grade VARCHAR(50),
+    notes TEXT,
     FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE,
     INDEX idx_project_name(project_name),
     INDEX crop_product(crop_name, product_type),
@@ -466,21 +468,6 @@ CREATE TABLE project_farm_assignment (
     INDEX farmer_farm_contribution(farmer_id, farm_id, contribution_amount)
 );
 
--- Project tracking table
-CREATE TABLE project_tracking (
-    tracking_id INT PRIMARY KEY AUTO_INCREMENT,
-    project_id INT,
-    farm_id INT,
-    actual_contribution DECIMAL(10,2),
-    delivery_date DATE,
-    quality_grade VARCHAR(20),
-    notes TEXT,
-    FOREIGN KEY (project_id) REFERENCES project(project_id) ON DELETE CASCADE,
-    FOREIGN KEY (farm_id) REFERENCES farm(farm_id) ON DELETE CASCADE,
-    INDEX actual_farm_contribution(farm_id, actual_contribution)
-);
-
-
 -- Check Spatial Reference System (SRID) of geoboundaries
 SELECT ST_SRID(geo_boundaries) 
 FROM farm;
@@ -488,5 +475,3 @@ FROM farm;
 -- This changes SRID of the geoboundaries from 0 to 4326 (WGS84) for global geographic data
 UPDATE farm 
 SET geo_boundaries = ST_GeomFromText(ST_AsText(geo_boundaries), 4326);
-
-
