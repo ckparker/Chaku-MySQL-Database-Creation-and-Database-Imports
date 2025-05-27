@@ -435,7 +435,7 @@ CREATE TABLE project (
     project_name VARCHAR(255),
     crop_name VARCHAR(100),
     product_type VARCHAR(50),  -- (Fresh, Flour, Dried, Chips)
-    quantity_required DECIMAL(10,2),  -- in metric tons
+    quantity_required DECIMAL(10,2),
     quantity_unit VARCHAR(20),  -- (Metric Tons, Kilogrammes, Litres, Pounds)
     harvest_time_start DATE,
     harvest_time_end DATE,
